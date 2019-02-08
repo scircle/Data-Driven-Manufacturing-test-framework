@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root> 
+<!-- This is the global base XML config file. It's supposed to be
+included by other XML files. It acts like the root class.
+-->
+
+
+<CPU>
+  <CMD name="cat /proc/cpuinfo">
+  fs,T1020
+  </CMD>
+</CPU>
+<DDR>
+  <CMD name="memtester 10M 1" policy="NO" policy_data="FAILURE"> 
+  </CMD>
+</DDR>
+<RTC>
+  <CMD  name="date -s '31 OCT 2015 12:00:00'" next="yes">
+  </CMD>
+  <CMD name="hwclock --systohc" next="yes">
+  </CMD>
+  <CMD name="hwclock --show">
+  Sat Oct 31
+  </CMD>
+</RTC>
+</root>  
+  
+
+
