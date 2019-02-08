@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="/usr/bin/scripts/ht/cfg/htCmdBase.xml" />
+
+<!--Each outter tag corresponds to the *right* value in xxxcmdMapping.ini.
+e.g PCI=PCI. The left key corresponds to the test item argument of main test program.
+e.g. -t PCI(case-insensitive)
+
+In each outter tag, the name attribute indicates the test command(s).
+
+POLICY: The default *policy* is exact match.
+-->
+<PCI>
+  <CMD name="lspci -s 0000:00:00.0" next="yes">
+  PCI bridge: Freescale Semiconductor Inc Device
+  </CMD>
+  <CMD name="lspci -s 0000:01:00.0">
+  Ethernet controller: Broadcom Corporation Device
+  </CMD>
+</PCI>
+<I2C>
+  <CMD name="cat /sys/bus/i2c/devices/8-0050/name" next="yes">
+  xfp_mi
+  </CMD>
+  <!-- zl6105 -->
+  <CMD name="cat /sys/bus/i2c/devices/10-0021/in2_input" policy="regex" next="yes">
+  \d{3,}
+  </CMD>
+</I2C>
+<!-- For SGMII Katana to CPU test -->
+<SGMIIKA2CPU>
+  <!-- Preconfig one eth on CPU side -->
+  <CMD name="ifconfig eth2 172.16.1.100 netmask 255.255.255.0"> 
+  </CMD>
+  <!-- just enable the ge11(used for SGMII) -->
+  <CMD name="port ge11 e=1" type="BCM" next="yes">
+  </CMD>
+  <CMD name="ps ge11" type="BCM" next="yes">
+  </CMD>
+  <CMD name="tx 200 pbm=ge11 vl=1 dm=00:22:44:66:88:51" type="BCM" next="yes">
+  </CMD>
+  <CMD name="clear c ge11" type="BCM" next="no">
+  </CMD>
+  <!-- Back to linux, check the traffic from KATANA to  CPU -->
+  <CMD name="ifconfig eth2" policy="regex" next="yes">
+  dropped:\d{2,}00 
+  </CMD>
+  <!-- check the traffic from CPU to KATANA -->
+  <!-- Ignore the return code of this command. Otherwise it reports fail -->
+  <CMD name="ping -c 3 172.16.1.1" returncode="ignore" next="no"> 
+  </CMD>
+  <CMD name="show c ge11" type="BCM" policy="regex">
+  RPKT.ge11\s+:\s+3
+  </CMD>
+  <!-- Postconfig -->
+  <CMD name="port ge11 e=0" type="BCM" next="no">
+  </CMD>
+</SGMIIKA2CPU> 
